@@ -3,111 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Time Secret Generator</title>
+    <title>One Time Secret</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f7f7f7;
+            background-color: #f0f0f0;
         }
         .container {
             max-width: 600px;
-            width: 100%;
-            padding: 20px;
             background-color: #fff;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        label {
-            font-weight: bold;
-        }
-        textarea, input[type="text"] {
+        textarea, button {
             width: 100%;
-            margin-top: 5px;
-            margin-bottom: 20px;
             padding: 10px;
+            margin-top: 10px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 4px;
         }
-        .button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .result {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #007bff;
+        .link {
+            margin-top: 10px;
+            font-size: 14px;
+            word-break: break-all;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>One Time Secret Generator</h1>
-
-    <label for="contentType">Kies content type:</label>
-    <select id="contentType" onchange="toggleInput()">
-        <option value="text">Tekst</option>
-        <option value="html">Custom HTML</option>
-    </select>
-
-    <label for="contentInput">Voer je geheim in:</label>
-    <textarea id="contentInput" rows="5" placeholder="Type hier je geheim..."></textarea>
-
-    <button class="button" id="generateButton" onclick="generateSecret()">Genereer Secret Link</button>
-
-    <div class="result" id="secretLink"></div>
+    <h2>One Time Secret Generator</h2>
+    <textarea id="secretInput" rows="4" placeholder="Typ je geheim hier..."></textarea>
+    <button onclick="generateSecret()">Genereer Secret Link</button>
+    <p id="secretLink" class="link"></p>
 </div>
 
 <script>
-    let secretStore = {};  // Simuleer een backend voor het bewaren van de geheimen
-
-    function toggleInput() {
-        const contentType = document.getElementById("contentType").value;
-        const contentInput = document.getElementById("contentInput");
-        
-        if (contentType === "html") {
-            contentInput.placeholder = "Voer custom HTML in...";
-        } else {
-            contentInput.placeholder = "Type hier je geheim...";
-        }
-    }
-
     function generateSecret() {
-        const content = document.getElementById("contentInput").value;
-        const contentType = document.getElementById("contentType").value;
-
-        if (!content.trim()) {
-            alert("Voer een geheim in.");
+        const secret = document.getElementById("secretInput").value;
+        if (!secret) {
+            alert("Vul een geheim in!");
             return;
         }
 
-        // Genereer een unieke ID voor de secret
-        const secretId = Math.random().toString(36).substring(2, 15);
-        
-        // Sla de secret op in een gesimuleerde backend
-        secretStore[secretId] = {
-            content: content,
-            contentType: contentType,
-            viewed: false
-        };
-
-        // Toon de gegenereerde link
-        const secretLink = window.location.href + "secret.html?id=" + secretId;
-        document.getElementById("secretLink").innerHTML = `Je geheime link: <a href="${secretLink}" target="_blank">${secretLink}</a>`;
+        // Encodeer het geheim in de URL
+        const encodedSecret = encodeURIComponent(secret);
+        const link = `${window.location.href}?secret=${encodedSecret}`;
+        document.getElementById("secretLink").textContent = link;
+        document.getElementById("secretInput").value = '';
     }
+
+    // Check of er een geheim in de URL staat
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const secret = urlParams.get('secret');
+        if (secret) {
+            // Decodeer en toon het geheim
+            alert("Je geheim: " + decodeURIComponent(secret));
+
+            // Verwijder het geheim uit de URL
+            window.history.replaceState({}, document.title, "/");
+        }
+    };
 </script>
 
 </body>
